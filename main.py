@@ -1,5 +1,6 @@
 from MovieLensExample import movielens
 from AmazonSalesExample import amazonsales
+from PostRecommendationsExample import postRecommendation
 
 def main():
     while True:
@@ -16,6 +17,7 @@ def main():
                     break
                 case 3:
                     print("Post Recommendation Selected")
+                    postRecommendation()
                     break
                 case 0:
                     print("Exit")
