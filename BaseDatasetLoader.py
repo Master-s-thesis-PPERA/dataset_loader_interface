@@ -16,7 +16,6 @@ class BaseDatasetLoader(ABC):
         """
         self.data_path = data_path
 
-    @abstractmethod
     def load_ratings(self) -> pd.DataFrame:
         """
         Loads the user-item interaction data (e.g., ratings).
@@ -27,7 +26,6 @@ class BaseDatasetLoader(ABC):
         """
         pass
 
-    @abstractmethod
     def load_item_features(self) -> pd.DataFrame:
         """
         Loads item features (e.g., movie genres, product descriptions).
@@ -37,7 +35,6 @@ class BaseDatasetLoader(ABC):
         """
         pass
 
-    @abstractmethod
     def get_user_item_interactions(self) -> Dict[int, List[Tuple[int, float]]]:
         """
         Gets a dictionary mapping user IDs to a list of (item_id, rating) tuples.

@@ -1,4 +1,5 @@
 from MovieLensExample import movielens
+from AmazonSalesExample import amazonsales
 
 def main():
     while True:
@@ -7,6 +8,7 @@ def main():
             match dataset:
                 case 1:
                     print("Amazon Sales Selected")
+                    amazonsales()
                     break
                 case 2:
                     print("MovieLens Selected")
