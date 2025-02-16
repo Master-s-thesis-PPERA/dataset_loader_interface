@@ -1,8 +1,9 @@
 import os
+import numpy as np
 import pandas as pd
 
 from BaseDatasetLoader import BaseDatasetLoader
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Union
 
 
 
@@ -42,3 +43,55 @@ class AmazonSalesDataset(BaseDatasetLoader):
         test_df.to_csv(test_file, index=False)
 
         return train_df, test_df
+    
+    def hide_information(self, data: pd.DataFrame,  # Add 'self' here
+                     hide_type: str = "columns",
+                     columns_to_hide: Union[str, List[str]] = None,
+                     fraction_to_hide: float = 0.0,
+                     records_to_hide: List[int] = None,
+                     seed: int = 42) -> pd.DataFrame:
+
+        df = data.copy()
+        np.random.seed(seed)
+
+        if hide_type == "columns":
+            if columns_to_hide is None:
+                raise ValueError("Must specify 'columns_to_hide' for hide_type='columns'.")
+            if isinstance(columns_to_hide, str):
+                columns_to_hide = [columns_to_hide]
+            if not all(col in df.columns for col in columns_to_hide):
+                raise ValueError("One or more 'columns_to_hide' not found in DataFrame.")
+            df = df.drop(columns=columns_to_hide)
+
+        elif hide_type == "records_random":
+            if not 0.0 <= fraction_to_hide <= 1.0:
+                raise ValueError("'fraction_to_hide' must be between 0.0 and 1.0.")
+            num_to_hide = int(len(df) * fraction_to_hide)
+            indices_to_hide = np.random.choice(df.index, size=num_to_hide, replace=False)
+            df = df.drop(index=indices_to_hide)
+
+        elif hide_type == "records_selective":
+            if records_to_hide is None:
+                raise ValueError("Must specify 'records_to_hide' for hide_type='records_selective'.")
+            if not all(idx in df.index for idx in records_to_hide):
+                raise ValueError("One or more 'records_to_hide' indices not found in DataFrame.")
+            df = df.drop(index=records_to_hide)
+
+        elif hide_type == "values_in_column":
+            if columns_to_hide is None:
+                raise ValueError("Must specify 'columns_to_hide' for hide_type='values_in_column'.")
+            if not 0.0 <= fraction_to_hide <= 1.0:
+                raise ValueError("'fraction_to_hide' must be between 0.0 and 1.0.")
+            if isinstance(columns_to_hide, str):
+                columns_to_hide = [columns_to_hide]
+            if not all(col in df.columns for col in columns_to_hide):
+                raise ValueError("One or more 'columns_to_hide' not found in DataFrame.")
+
+            for col in columns_to_hide:
+                num_to_hide = int(len(df) * fraction_to_hide)
+                indices_to_hide = np.random.choice(df.index, size=num_to_hide, replace=False)
+                df.loc[indices_to_hide, col] = np.nan
+        else:
+            raise ValueError(f"Invalid 'hide_type': {hide_type}")
+
+        return df

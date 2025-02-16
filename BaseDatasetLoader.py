@@ -1,6 +1,7 @@
+import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-from typing import Tuple, Dict, List, Optional
+from typing import Tuple, Dict, List, Optional, Union
 
 class BaseDatasetLoader(ABC):
     """
@@ -90,3 +91,34 @@ class BaseDatasetLoader(ABC):
         """
         interactions = self.get_user_item_interactions()
         return interactions.get(user_id, [])
+    
+    def hide_information(data: pd.DataFrame,
+                     hide_type: str = "columns",
+                     columns_to_hide: Union[str, List[str]] = None,
+                     fraction_to_hide: float = 0.0,
+                     records_to_hide: List[int] = None,
+                     seed: int = 42) -> pd.DataFrame:
+        """
+            Hides information in a Pandas DataFrame for testing recommendation algorithm robustness.
+
+            Args:
+                data: The input Pandas DataFrame.
+                hide_type: The type of hiding to perform.  Options:
+                    - "columns": Hide entire columns.
+                    - "records_random": Hide a random fraction of records (rows).
+                    - "records_selective": Hide specific records based on index.
+                    - "values_in_column":  Randomly hide values within specified columns.
+                columns_to_hide:  List of column names to hide (for "columns" and "values_in_column" hide_types).
+                                Can be a single column name (string) or a list of column names.
+                fraction_to_hide: Fraction of records or values to hide (for "records_random" and "values_in_column" hide_types).
+                                Must be between 0.0 and 1.0.
+                records_to_hide: List of record indices to hide (for "records_selective" hide_type).
+                seed: Random seed for reproducibility.
+
+            Returns:
+                A new Pandas DataFrame with the specified information hidden.  Original DataFrame is not modified.
+
+            Raises:
+                ValueError: If invalid arguments are provided.
+            """
+        pass
