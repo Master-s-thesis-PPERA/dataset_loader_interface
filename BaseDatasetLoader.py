@@ -7,7 +7,7 @@ class BaseDatasetLoader(ABC):
     """
     Abstract base class for dataset loaders.
     """
-
+    @abstractmethod
     def __init__(self, data_path: str):
         """
         Initializes the DatasetLoader.
@@ -17,13 +17,23 @@ class BaseDatasetLoader(ABC):
         """
         self.data_path = data_path
 
-    def load_ratings(self) -> pd.DataFrame:
+    def load_dataset(self) -> pd.DataFrame:
         """
-        Loads the user-item interaction data (e.g., ratings).
+        Loads the dataset.
 
         Returns:
-            A Pandas DataFrame with at least 'user_id', 'item_id',
-            and 'rating' columns.
+            A Pandas DataFrame with all columns.
+        """
+        dataset_df = pd.read_csv(self.dataset_file)
+        return dataset_df
+    
+    @abstractmethod
+    def load_dataset_useful_columns(self) -> pd.DataFrame:
+        """
+        Loads the dataset.
+
+        Returns:
+            A Pandas DataFrame with specific columns.
         """
         pass
 
@@ -54,7 +64,7 @@ class BaseDatasetLoader(ABC):
 
        Args:
            test_size (float): Proportion of data to use for testing.
-           seed (int): Random seed for reproducibility.
+           seed (int): Random seed for reproducibility. To get the same split each time.
 
        Returns:
            Tuple[pd.DataFrame, pd.DataFrame]: Training and testing DataFrames.

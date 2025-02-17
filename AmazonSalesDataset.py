@@ -16,16 +16,16 @@ class AmazonSalesDataset(BaseDatasetLoader):
     def __init__(self, data_path: str = "datasets/AmazonSales"):
         super().__init__(data_path)
         self.dataset_file = f"{self.data_path}/amazon.csv"
-
         self.AmazonSalesPathTest = "datasets/AmazonSales/testDataset"
         self.AmazonSalesPathTrain = "datasets/AmazonSales/trainDataset"
 
-    def load_dataset(self) -> pd.DataFrame:
+    # def load_dataset(self) -> pd.DataFrame:
+    #     dataset_df = pd.read_csv(self.dataset_file)
+    #     return dataset_df
+    
+    def load_dataset_useful_columns(self) -> pd.DataFrame:
         dataset_df = pd.read_csv(self.dataset_file)
-        # dataset_df.rename(
-        #     columns={"userId": "user_id", "movieId": "item_id"}, inplace=True
-        # )
-        return dataset_df[["product_id", "product_name", "actual_price"]]  # Select only necessary columns
+        return dataset_df[["product_id", "product_name", "category", "rating", "user_id", "review_content"]]
 
 # To zostaje - split na test data i train data więc uniwersalne do każdego dataeu
     def get_train_test_split(self, test_size: float = 0.2, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
