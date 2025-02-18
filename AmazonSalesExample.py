@@ -1,4 +1,3 @@
-# Initialize the loader
 import AmazonSalesDataset
 
 def amazonsales():

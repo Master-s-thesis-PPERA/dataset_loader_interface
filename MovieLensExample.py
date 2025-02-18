@@ -1,6 +1,5 @@
-# Initialize the loader
 import MovieLensDataset
-import pandas as pd
+
 
 def movielens():
   loader = MovieLensDataset.MovieLensDataset()

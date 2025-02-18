@@ -1,9 +1,10 @@
 import os
-from BaseDatasetLoader import BaseDatasetLoader
-from typing import Optional, Union, Tuple, Dict, List
-
 import pandas as pd
-import numpy as np
+
+
+from BaseDatasetLoader import BaseDatasetLoader
+from typing import Optional, Tuple, Dict, List
+
 
 
 class MovieLensDataset(BaseDatasetLoader):
