@@ -16,7 +16,9 @@ class PostRecommendationsDataset(BaseDatasetLoader):
         super().__init__(data_path)
         self.userData_file = f"{self.data_path}/user_data.csv"
         self.viewData_file = f"{self.data_path}/view_data.csv"
-        self.user_view_merge = f"{self.data_path}/user_view_merge.csv"
+        self.postData_file = f"{self.data_path}/post_data.csv"
+
+        self.user_view_post_merge = f"{self.data_path}/user_view_post_merge.csv"
 
         self.test_path = "datasets/PostRecommendations/testDataset"
         self.train_path = "datasets/PostRecommendations/trainDataset"
@@ -24,16 +26,18 @@ class PostRecommendationsDataset(BaseDatasetLoader):
     def merge_datasets(self) -> pd.DataFrame:
         user_df = pd.read_csv(self.userData_file)
         view_df = pd.read_csv(self.viewData_file)
+        post_df = pd.read_csv(self.postData_file)
 
         merge_file = pd.merge(user_df, view_df, on="user_id", how="left")
-        merge_file.to_csv(self.user_view_merge, index=False)
-        return merge_file
+        final_merge_file = pd.merge(merge_file, post_df, on="post_id", how="left")
+        final_merge_file.to_csv(self.user_view_post_merge, index=False)
+        return final_merge_file
 
     def load_dataset(self) -> pd.DataFrame:
         # Check if the merged file exists
-        if os.path.exists(self.user_view_merge):
+        if os.path.exists(self.user_view_post_merge):
             print("Loading cached merged dataset...")
-            dataset_df = pd.read_csv(self.user_view_merge)
+            dataset_df = pd.read_csv(self.user_view_post_merge)
         else:
             print("Merged dataset not found.  Merging and saving...")
             dataset_df = self.merge_datasets()  # Merge and save
