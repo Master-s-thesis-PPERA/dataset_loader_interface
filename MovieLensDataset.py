@@ -1,9 +1,10 @@
 import os
-from BaseDatasetLoader import BaseDatasetLoader
-from typing import Union, Tuple, Dict, List
-
 import pandas as pd
-import numpy as np
+
+
+from BaseDatasetLoader import BaseDatasetLoader
+#from typing import Optional, Tuple, Dict, List
+
 
 
 class MovieLensDataset(BaseDatasetLoader):
@@ -15,99 +16,76 @@ class MovieLensDataset(BaseDatasetLoader):
         super().__init__(data_path)
         self.ratings_file = f"{self.data_path}/rating.csv"
         self.movies_file = f"{self.data_path}/movie.csv"
+        self.tag_file = f"{self.data_path}/tag.csv"
 
-        self.MovieLensPathTest = "datasets/MovieLens/testDataset"
-        self.MovieLensPathTrain = "datasets/MovieLens/trainDataset"
+        self.rating_movie_tag_merge = f"{self.data_path}/rating_movie_tag_merge.csv"
 
-    def load_ratings(self) -> pd.DataFrame:
+        self.test_path = "datasets/MovieLens/testDataset"
+        self.train_path = "datasets/MovieLens/trainDataset"
+
+    def merge_datasets(self) -> pd.DataFrame:
         ratings_df = pd.read_csv(self.ratings_file)
-        ratings_df.rename(
-            columns={"userId": "user_id", "movieId": "item_id"}, inplace=True
-        )
-        return ratings_df[["user_id", "item_id", "rating"]]  # Select only necessary columns
-
-    def load_item_features(self) -> pd.DataFrame:
         movies_df = pd.read_csv(self.movies_file)
-        movies_df.rename(columns={"movieId": "item_id"}, inplace=True)
-        # Convert genres to a list of genres
-        movies_df["genres"] = movies_df["genres"].str.split("|")
-        return movies_df[["item_id", "genres", "title"]] # Include title
-
-# Jak dany użytkownik ocenił poszczególne filmy
-    def get_user_item_interactions(self) -> Dict[int, List[Tuple[int, float]]]:
-        ratings_df = self.load_ratings()
-        interactions = {}
-        for user_id, group in ratings_df.groupby("user_id"):
-            interactions[user_id] = list(zip(group["item_id"], group["rating"]))
-        return interactions
-
-
-# To zostaje - split na test data i train data więc uniwersalne do każdego dataeu
-    def get_train_test_split(self, test_size: float = 0.2, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        ratings_df = self.load_ratings()
-        train_df = ratings_df.sample(frac=1 - test_size, random_state=seed)
-        test_df = ratings_df.drop(train_df.index)
+        tags_df = pd.read_csv(self.tag_file)
         
-        save_path_train = self.MovieLensPathTrain
-        save_path_test = self.MovieLensPathTest
+        tags_df = tags_df.rename(columns={'timestamp': 'tag_timestamp'})
 
-        train_file = os.path.join(save_path_train, "train.csv")
-        test_file = os.path.join(save_path_test, "test.csv")
+        merge_file = pd.merge(ratings_df, movies_df, on="movieId", how="left")
+        final_merge_file = pd.merge(merge_file, tags_df, on=["movieId", "userId"], how="left")
 
-        train_df.to_csv(train_file, index=False)
-        test_df.to_csv(test_file, index=False)
+        final_merge_file.to_csv(self.rating_movie_tag_merge, index=False)
+        return final_merge_file
 
-        return train_df, test_df
-    
-
-    def hide_information(self, data: pd.DataFrame,  # Add 'self' here
-                     hide_type: str = "columns",
-                     columns_to_hide: Union[str, List[str]] = None,
-                     fraction_to_hide: float = 0.0,
-                     records_to_hide: List[int] = None,
-                     seed: int = 42) -> pd.DataFrame:
-
-        df = data.copy()
-        np.random.seed(seed)
-
-        if hide_type == "columns":
-            if columns_to_hide is None:
-                raise ValueError("Must specify 'columns_to_hide' for hide_type='columns'.")
-            if isinstance(columns_to_hide, str):
-                columns_to_hide = [columns_to_hide]
-            if not all(col in df.columns for col in columns_to_hide):
-                raise ValueError("One or more 'columns_to_hide' not found in DataFrame.")
-            df = df.drop(columns=columns_to_hide)
-
-        elif hide_type == "records_random":
-            if not 0.0 <= fraction_to_hide <= 1.0:
-                raise ValueError("'fraction_to_hide' must be between 0.0 and 1.0.")
-            num_to_hide = int(len(df) * fraction_to_hide)
-            indices_to_hide = np.random.choice(df.index, size=num_to_hide, replace=False)
-            df = df.drop(index=indices_to_hide)
-
-        elif hide_type == "records_selective":
-            if records_to_hide is None:
-                raise ValueError("Must specify 'records_to_hide' for hide_type='records_selective'.")
-            if not all(idx in df.index for idx in records_to_hide):
-                raise ValueError("One or more 'records_to_hide' indices not found in DataFrame.")
-            df = df.drop(index=records_to_hide)
-
-        elif hide_type == "values_in_column":
-            if columns_to_hide is None:
-                raise ValueError("Must specify 'columns_to_hide' for hide_type='values_in_column'.")
-            if not 0.0 <= fraction_to_hide <= 1.0:
-                raise ValueError("'fraction_to_hide' must be between 0.0 and 1.0.")
-            if isinstance(columns_to_hide, str):
-                columns_to_hide = [columns_to_hide]
-            if not all(col in df.columns for col in columns_to_hide):
-                raise ValueError("One or more 'columns_to_hide' not found in DataFrame.")
-
-            for col in columns_to_hide:
-                num_to_hide = int(len(df) * fraction_to_hide)
-                indices_to_hide = np.random.choice(df.index, size=num_to_hide, replace=False)
-                df.loc[indices_to_hide, col] = np.nan
+    def load_dataset(self) -> pd.DataFrame:
+        # Check if the merged file exists
+        if os.path.exists(self.rating_movie_tag_merge):
+            print("Loading cached merged dataset...")
+            dataset_df = pd.read_csv(self.rating_movie_tag_merge)
         else:
-            raise ValueError(f"Invalid 'hide_type': {hide_type}")
+            print("Merged dataset not found.  Merging and saving...")
+            dataset_df = self.merge_datasets()  # Merge and save
+        return dataset_df
 
-        return df
+#     def load_item_features(self) -> pd.DataFrame:
+#         movies_df = pd.read_csv(self.movies_file)
+#         # Convert genres to a list of genres
+#         movies_df["genres"] = movies_df["genres"].str.split("|")
+#         return movies_df[["movieId", "genres", "title"]] # Include title
+
+# # Jak dany użytkownik ocenił poszczególne filmy
+#     def get_user_item_interactions(self) -> Dict[int, List[Tuple[int, float]]]:
+#         ratings_df = self.load_dataset()
+#         interactions = {}
+#         for user_id, group in ratings_df.groupby("userId"):
+#             interactions[user_id] = list(zip(group["movieId"], group["rating"]))
+#         return interactions
+    
+#     def get_item_features_for_item(self, item_id: int) -> Optional[Dict]:
+#         """
+#         (Optional) Get features for a single item.  Useful for L2R or RL
+#         when you need to represent the current state.
+
+#         Args:
+#             item_id: The ID of the item.
+
+#         Returns:
+#             A dictionary of item features, or None if the item is not found.
+#         """
+#         item_features_df = self.load_item_features()
+#         if item_id in item_features_df['movieId'].values:
+#             return item_features_df[item_features_df['movieId'] == item_id].iloc[0].to_dict()
+#         else:
+#             return None
+
+#     def get_user_history(self, user_id: int) -> List[Tuple[int, float]]:
+#         """
+#         (Optional) Get the interaction history for a single user. Useful for RL.
+
+#         Args:
+#             user_id: The ID of the user.
+
+#         Returns:
+#             A list of (item_id, rating) tuples.
+#         """
+#         interactions = self.get_user_item_interactions()
+#         return interactions.get(user_id, [])
