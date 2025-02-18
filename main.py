@@ -1,6 +1,4 @@
-from MovieLensExample import movielens
-from AmazonSalesExample import amazonsales
-from PostRecommendationsExample import postRecommendation
+from ProcessDataset import process_dataset
 
 def main():
     while True:
@@ -9,15 +7,15 @@ def main():
             match dataset:
                 case 1:
                     print("Amazon Sales Selected")
-                    amazonsales()
+                    process_dataset("amazonsales")
                     break
                 case 2:
                     print("MovieLens Selected")
-                    movielens()
+                    process_dataset("movielens")
                     break
                 case 3:
                     print("Post Recommendation Selected")
-                    postRecommendation()
+                    process_dataset("postrecommendations")
                     break
                 case 0:
                     print("Exit")
