@@ -37,7 +37,7 @@ class MovieLensDataset(BaseDatasetLoader):
         final_merge_file.to_csv(self.merge_file, index=False)
         return final_merge_file
 
-
+# Additional old methods for movieLensDataset
 #     def load_item_features(self) -> pd.DataFrame:
 #         movies_df = pd.read_csv(self.movies_file)
 #         # Convert genres to a list of genres

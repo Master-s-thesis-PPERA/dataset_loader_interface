@@ -140,22 +140,23 @@ class BaseDatasetLoader(ABC):
 
         return df
 
-    def load_item_features(self) -> pd.DataFrame:
-        """
-        Loads item features (e.g., movie genres, product descriptions).
+    # #Additional methods that are implemented in the MovieLensDataset.py
+    # def load_item_features(self) -> pd.DataFrame:
+    #     """
+    #     Loads item features (e.g., movie genres, product descriptions).
 
-        Returns:
-            A Pandas DataFrame with at least 'item_id' and feature columns.
-        """
-        pass
+    #     Returns:
+    #         A Pandas DataFrame with at least 'item_id' and feature columns.
+    #     """
+    #     pass
 
-    def get_user_item_interactions(self) -> Dict[int, List[Tuple[int, float]]]:
-        """
-        Gets a dictionary mapping user IDs to a list of (item_id, rating) tuples.
-        This is useful for CF algorithms.
+    # def get_user_item_interactions(self) -> Dict[int, List[Tuple[int, float]]]:
+    #     """
+    #     Gets a dictionary mapping user IDs to a list of (item_id, rating) tuples.
+    #     This is useful for CF algorithms.
 
-        Returns:
-            A dictionary where keys are user IDs and values are lists of
-            (item_id, rating) tuples.
-        """
-        pass
+    #     Returns:
+    #         A dictionary where keys are user IDs and values are lists of
+    #         (item_id, rating) tuples.
+    #     """
+    #     pass
