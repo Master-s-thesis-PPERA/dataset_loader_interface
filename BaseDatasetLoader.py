@@ -30,14 +30,14 @@ class BaseDatasetLoader(ABC):
         dataset_df = pd.read_csv(self.dataset_file)
         return dataset_df
     
-    def load_dataset_useful_columns(self) -> pd.DataFrame:
-        """
-        Loads the dataset.
+    # def load_dataset_useful_columns(self) -> pd.DataFrame:
+    #     """
+    #     Loads the dataset.
 
-        Returns:
-            A Pandas DataFrame with specific columns.
-        """
-        pass
+    #     Returns:
+    #         A Pandas DataFrame with specific columns.
+    #     """
+    #     pass
 
     def get_train_test_split(self, test_size: float = 0.2, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """"

@@ -34,16 +34,25 @@ def process_dataset(dataset_name):
         case 1:
           while True:
             try:
-              input2 = int(input("(1) Load dataset, (2) Load useful columns, (0) Exit: "))
+              input2 = int(input("(1) Load dataset, (0) Exit: "))
               match input2:
                 case 1:
-                  dataset = loader.load_dataset()
+                  column = input("Enter the name of the column to return (e.g., user_id, first_name) Keep empty to return all columns: ")
+                  column_name = column.split(",")
+                  column_name = [c.strip() for c in column_name]  # Remove leading/trailing whitespace
+                  # Remove empty column from the column_name list
+                  column_name = [ele for ele in column_name if ele != ""]
+
+                  if len(column_name) > 0:
+                      dataset = loader.load_dataset(column_name)  # Pass as positional argument
+                  else:
+                      dataset = loader.load_dataset()  # no column is chosen
                   print(dataset.head())
                   break
-                case 2:
-                  dataset = loader.load_dataset_useful_columns()
-                  print(dataset.head())
-                  break
+                # case 2:
+                #   dataset = loader.load_dataset_useful_columns()
+                #   print(dataset.head())
+                #   break
                 case 0:
                   break
                 case _:
