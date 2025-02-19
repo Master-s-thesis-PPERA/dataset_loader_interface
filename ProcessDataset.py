@@ -49,10 +49,6 @@ def process_dataset(dataset_name):
                       dataset = loader.load_dataset()  # no column is chosen
                   print(dataset.head())
                   break
-                # case 2:
-                #   dataset = loader.load_dataset_useful_columns()
-                #   print(dataset.head())
-                #   break
                 case 0:
                   break
                 case _:
